@@ -1,0 +1,43 @@
+resources:
+  jobs:
+    fe_bar_ml_train_score:
+      name: fe-bar-ml-train-score
+      description: Train GiftGuard fraud model, batch-score gold orders, write GenAI case summaries.
+      max_concurrent_runs: 1
+      parameters:
+        - name: catalog
+          default: ${var.catalog}
+        - name: gold_schema
+          default: ${var.gold_schema}
+        - name: ml_schema
+          default: ${var.ml_schema}
+        - name: model_name
+          default: ${var.model_name}
+        - name: decision_threshold
+          default: "0.35"
+        - name: summary_limit
+          default: "40"
+      environments:
+        - environment_key: fe-bar-ml-env
+          spec:
+            client: "4"
+            dependencies:
+              - xgboost>=2.0.0
+              - scikit-learn>=1.4.0
+              - mlflow>=2.12.0
+      tasks:
+        - task_key: train_score_summarize
+          environment_key: fe-bar-ml-env
+          notebook_task:
+            notebook_path: ../src/notebooks/04_train_and_score.py
+            source: WORKSPACE
+            base_parameters:
+              catalog: "{{job.parameters.catalog}}"
+              gold_schema: "{{job.parameters.gold_schema}}"
+              ml_schema: "{{job.parameters.ml_schema}}"
+              model_name: "{{job.parameters.model_name}}"
+              decision_threshold: "{{job.parameters.decision_threshold}}"
+              summary_limit: "{{job.parameters.summary_limit}}"
+      tags:
+        project: fe-bar-giftguard
+        layer: ml

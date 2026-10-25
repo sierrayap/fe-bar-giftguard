@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>GiftGuard — Talk Track Slides</title>
+<style>
+  :root {
+    --red: #FF3621;
+    --navy: #1B3139;
+    --navy-soft: #2d4550;
+    --ink: #1B3139;
+    --muted: #5f7581;
+    --bg: #FAFAFA;
+    --card: #ffffff;
+    --line: #E3E8EA;
+    --allow: #2E7D32;
+    --review: #B8860B;
+    --block: #C62828;
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0; padding: 0; height: 100%;
+    font-family: -apple-system, "Segoe UI", Helvetica, Arial, sans-serif;
+    background: var(--navy);
+    color: var(--ink);
+    overflow: hidden;
+  }
+  #deck { position: relative; width: 100vw; height: 100vh; }
+  .slide {
+    position: absolute; inset: 0;
+    display: none;
+    flex-direction: column;
+    background: var(--bg);
+    padding: 64px 88px 56px;
+  }
+  .slide.active { display: flex; }
+  .slide.backup { background: #F3F1EC; }
+  .kicker {
+    font-size: 15px; font-weight: 700; letter-spacing: 0.12em;
+    color: var(--red); text-transform: uppercase; margin-bottom: 10px;
+  }
+  .backup .kicker { color: var(--navy-soft); }
+  h1 {
+    font-size: 46px; line-height: 1.12; margin: 0 0 18px; color: var(--navy);
+    font-weight: 800; letter-spacing: -0.01em;
+  }
+  h2.sub {
+    font-size: 22px; font-weight: 500; color: var(--muted); margin: 0 0 28px; line-height: 1.4;
+    max-width: 880px;
+  }
+  .body { flex: 1; display: flex; flex-direction: column; justify-content: center; gap: 22px; }
+  .bullets { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 18px; }
+  .bullets li {
+    font-size: 24px; line-height: 1.5; color: var(--navy); padding-left: 34px; position: relative;
+  }
+  .bullets li::before {
+    content: ""; position: absolute; left: 0; top: 10px; width: 10px; height: 10px;
+    border-radius: 2px; background: var(--red);
+  }
+  .bullets.compact li { font-size: 19px; }
+  .kpi-row { display: flex; gap: 20px; flex-wrap: wrap; }
+  .kpi {
+    flex: 1; min-width: 190px; background: var(--card); border: 1px solid var(--line);
+    border-radius: 14px; padding: 24px 22px; box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+  }
+  .kpi .n { font-size: 40px; font-weight: 800; color: var(--navy); line-height: 1; }
+  .kpi .label { font-size: 14px; color: var(--muted); margin-top: 10px; font-weight: 600; }
+  .kpi .sub2 { font-size: 13px; color: var(--muted); margin-top: 4px; }
+  .kpi.allow .n { color: var(--allow); }
+  .kpi.review .n { color: var(--review); }
+  .kpi.block .n { color: var(--block); }
+  .tag {
+    display: inline-block; font-size: 12px; font-weight: 700; letter-spacing: 0.06em;
+    text-transform: uppercase; padding: 4px 10px; border-radius: 999px; margin-bottom: 8px;
+  }
+  .tag.allow { background: #E7F3E8; color: var(--allow); }
+  .tag.review { background: #FBF2DD; color: var(--review); }
+  .tag.block { background: #FBE6E4; color: var(--block); }
+
+  .flow { display: flex; align-items: center; gap: 0; flex-wrap: wrap; justify-content: center; margin-top: 10px; }
+  .node {
+    background: var(--card); border: 1.5px solid var(--navy); border-radius: 12px;
+    padding: 18px 20px; min-width: 140px; text-align: center; font-weight: 700; color: var(--navy);
+    font-size: 15px; box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+  }
+  .node .small { display: block; font-size: 12px; font-weight: 500; color: var(--muted); margin-top: 6px; }
+  .node.accent { border-color: var(--red); }
+  .arrow { font-size: 26px; color: var(--muted); margin: 0 10px; }
+  .flow-wrap-note { text-align: center; font-size: 14px; color: var(--muted); margin-top: 14px; }
+
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; flex: 1; align-items: center; }
+  .panel {
+    background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 28px;
+  }
+  .panel h3 { margin: 0 0 14px; font-size: 17px; color: var(--navy); font-weight: 700; }
+  .fact { display: flex; justify-content: space-between; font-size: 15px; padding: 8px 0; border-bottom: 1px dashed var(--line); }
+  .fact:last-child { border-bottom: none; }
+  .fact .k { color: var(--muted); }
+  .fact .v { font-weight: 700; color: var(--navy); }
+  .quote-box {
+    background: #FFF7F5; border-left: 4px solid var(--red); border-radius: 0 10px 10px 0;
+    padding: 18px 20px; font-size: 16px; font-style: italic; color: var(--navy-soft);
+  }
+
+  .big-number { font-size: 110px; font-weight: 800; color: var(--navy); line-height: 1; letter-spacing: -0.02em; }
+  .big-number .unit { font-size: 34px; color: var(--muted); font-weight: 600; margin-left: 10px; }
+  .caption { font-size: 17px; color: var(--muted); margin-top: 14px; max-width: 700px; }
+
+  .footer {
+    display: flex; justify-content: space-between; align-items: center;
+    font-size: 13px; color: var(--muted); border-top: 1px solid var(--line); padding-top: 16px; margin-top: 10px;
+  }
+  .footer .brand { font-weight: 700; color: var(--navy); }
+  .footer .brand span { color: var(--red); }
+
+  .qa-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .qa { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 16px 18px; }
+  .qa .q { font-weight: 700; font-size: 14px; color: var(--red); margin-bottom: 6px; }
+  .qa .a { font-size: 14px; color: var(--navy); line-height: 1.45; }
+
+  .progress-track { position: fixed; top: 0; left: 0; height: 4px; width: 100%; background: transparent; z-index: 50; }
+  .progress-bar { height: 100%; background: var(--red); width: 0%; transition: width .25s ease; }
+
+  .nav-hint {
+    position: fixed; bottom: 18px; right: 88px; font-size: 12px; color: var(--muted);
+    background: rgba(255,255,255,0.85); padding: 6px 12px; border-radius: 999px; border: 1px solid var(--line);
+    z-index: 50;
+  }
+  .slide-counter {
+    position: fixed; bottom: 18px; left: 88px; font-size: 12px; color: var(--muted);
+    background: rgba(255,255,255,0.85); padding: 6px 12px; border-radius: 999px; border: 1px solid var(--line);
+    z-index: 50;
+  }
+  .click-zone { position: fixed; top: 0; bottom: 0; width: 18%; z-index: 40; cursor: pointer; }
+  .click-zone.left { left: 0; }
+  .click-zone.right { right: 0; }
+
+  .title-slide { justify-content: center; align-items: flex-start; background: var(--navy); color: white; }
+  .title-slide h1 { color: white; font-size: 58px; }
+  .title-slide .sub { color: #B9C7CC; font-size: 22px; max-width: 760px; }
+  .title-slide .meta { margin-top: 48px; display: flex; gap: 40px; flex-wrap: wrap; }
+  .title-slide .meta div { font-size: 14px; color: #B9C7CC; }
+  .title-slide .meta div b { display: block; color: white; font-size: 16px; margin-top: 4px; }
+  .title-dot { width: 14px; height: 14px; background: var(--red); border-radius: 3px; margin-bottom: 20px; }
+
+  .section-divider {
+    justify-content: center; align-items: center; background: var(--navy); color: white; text-align: center;
+  }
+  .section-divider .step { font-size: 15px; color: var(--red); font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; margin-bottom: 14px; }
+  .section-divider h1 { color: white; font-size: 52px; max-width: 900px; }
+  .section-divider p { color: #B9C7CC; font-size: 19px; max-width: 760px; margin-top: 10px; }
+
+  @media print {
+    html, body { background: white; overflow: visible; }
+    .click-zone, .nav-hint, .slide-counter, .progress-track { display: none !important; }
+    .slide { position: relative; display: flex !important; page-break-after: always; height: 100vh; }
+  }
+</style>
+</head>
+<body>
+
+<div class="progress-track"><div class="progress-bar" id="progressBar"></div></div>
+<div class="click-zone left" onclick="prevSlide()" title="Previous"></div>
+<div class="click-zone right" onclick="nextSlide()" title="Next"></div>
+<div class="nav-hint">← → or space to navigate · P to print</div>
+<div class="slide-counter" id="slideCounter">1 / 20</div>
+
+<div id="deck">
+
+  <!-- 1. TITLE -->
+  <section class="slide active title-slide">
+    <div class="title-dot"></div>
+    <h1>GiftGuard</h1>
+    <div class="sub">Stopping gift-card fraud without blocking real buyers — Databricks Lakeflow, Unity Catalog, ML + GenAI, Lakebase, Genie, and a Databricks App, all on one order.</div>
+    <div class="meta">
+      <div>Presenter<b>Sierra Yap · Field Engineering</b></div>
+      <div>Workspace<b>fevm&#8209;sierra&#8209;yap&#8209;demo&#8209;dump</b></div>
+      <div>Data<b>100,298 real-run scored orders</b></div>
+    </div>
+  </section>
+
+  <!-- 2. THE PROBLEM -->
+  <section class="slide">
+    <div class="kicker">The problem</div>
+    <h1>Gift cards are cash.</h1>
+    <h2 class="sub">Stolen cards, account takeover, people buying a stack of max-denomination cards and dumping them. You don't catch it at the till — you catch it weeks later as a chargeback and a queue your analysts work by hand.</h2>
+    <div class="body">
+      <ul class="bullets">
+        <li>Not a generic "improve operations" story — a specific one: stop bad gift-card orders at purchase without blocking the person just buying a birthday card.</li>
+        <li>The money shows up as chargebacks and merchant penalties, long after the order already happened.</li>
+        <li>Customer here is a digital gift-card platform — think Prezzee. Bunnings cards, Woolies cards, redeemed from an account.</li>
+      </ul>
+    </div>
+    <div class="footer"><span class="brand">Gift<span>Guard</span></span><span>2 / 20</span></div>
+  </section>
+
+  <!-- 3. ONE CONNECTED FLOW -->
+  <section class="slide">
+    <div class="kicker">What I'm going to show you</div>
+    <h1>One connected flow, not six disconnected demos.</h1>
+    <h2 class="sub">Raw orders land. They get cleaned and governed. A model scores every order. Flagged ones go to a review console with a one-line reason. If a manager wants to ask a question, they ask it in English.</h2>
+    <div class="body">
+      <div class="flow">
+        <div class="node">Raw events<span class="small">UC Volume</span></div>
+        <div class="arrow">→</div>
+        <div class="node">Lakeflow<span class="small">bronze → silver → gold</span></div>
+        <div class="arrow">→</div>
+        <div class="node accent">Model + GenAI<span class="small">score + case summary</span></div>
+        <div class="arrow">→</div>
+        <div class="node">Lakebase<span class="small">fast point lookup</span></div>
+        <div class="arrow">→</div>
+        <div class="node">App + Genie<span class="small">review queue, English Q&amp;A</span></div>
+      </div>
+      <div class="flow-wrap-note">Numbers in this deck are from a real run on this workspace, not from a slide — you can check them.</div>
+    </div>
+    <div class="footer"><span class="brand">Gift<span>Guard</span></span><span>3 / 20</span></div>
+  </section>
+
+  <!-- 4. HEADLINE NUMBERS -->
+  <section class="slide">
+    <div class="kicker">Headline, so you know where we're landing</div>
+    <h1>100,298 orders scored.</h1>
+    <div class="body">
+      <div class="kpi-row">
+        <div class="kpi allow">
+          <span class="tag allow">Allow</span>
+          <div class="n">93,819</div>
+          <div class="label">orders passed straight through</div>
+        </div>
+        <div class="kpi review">
+          <span class="tag review">Review</span>
+          <div class="n">4,140</div>
+          <div class="label">$100,485 face value</div>
+        </div>
+        <div class="kpi block">
+          <span class="tag block">Block</span>
+          <div class="n">2,339</div>
+          <div class="label">$348,380 face value</div>
+          <div class="sub2">$226,100 of that is labeled fraud</div>
+        </div>
+      </div>
+      <div class="kpi-row" style="margin-top:4px;">
+        <div class="kpi">
+          <div class="n" style="font-size:32px;">$237,185</div>
+          <div class="label">total labeled fraud in the full set</div>
+        </div>
+        <div class="kpi">
+          <div class="n" style="font-size:32px; color:var(--red);">~80%</div>
+          <div class="label">of fraud orders caught at review or block</div>
+        </div>
+      </div>
+    </div>
+    <div class="footer"><span class="brand">Gift<span>Guard</span></span><span>4 / 20</span></div>
+  </section>
+
+  <!-- 5. DEMO DIVIDER -->
+  <section class="slide section-divider">
+    <div class="step">Demo — stop 1 of 6</div>
+    <h1>I'll walk one order end to end.</h1>
+    <p>Starting where your fraud team starts their day — not in a notebook. The Fraud-Ops app, built on AppKit, reading the warehouse and Lakebase.</p>
+  </section>
+
+  <!-- 6. APP: QUEUE -->
+  <section class="slide">
+    <div class="kicker">Fraud-Ops app</div>
+    <h1>This table is the work.</h1>
+    <h2 class="sub">KPI cards off the gold tables up top — fraud rate, dollars blocked, false-positive rate, cases open. The queue underneath is where the fraud team actually spends their morning.</h2>
+    <div class="body">
+      <ul class="bullets">
+        <li>Every row is a flagged order: score, brand, face value, and a short summary of why it got flagged.</li>
+        <li>An analyst can scan this without opening a spreadsheet.</li>
+        <li>Clicking any row — or looking one up directly through the Lakebase inspector — opens the full case.</li>
+      </ul>
+    </div>
+    <div class="footer"><span class="brand">Gift<span>Guard</span></span><span>6 / 20</span></div>
+  </section>
+
+  <!-- 7. APP: CASE DETAIL -->
+  <section class="slide">
+    <div class="kicker">Fraud-Ops app — case detail</div>
+    <h1>Order ord&#8209;00098728.</h1>
+    <div class="two-col">
+      <div class="panel">
+        <h3>Facts</h3>
+        <div class="fact"><span class="k">Score</span><span class="v">0.995</span></div>
+        <div class="fact"><span class="k">Decision</span><span class="v">Block</span></div>
+        <div class="fact"><span class="k">Brand</span><span class="v">Bunnings</span></div>
+        <div class="fact"><span class="k">Face value</span><span class="v">$500 (max denomination)</span></div>
+        <div class="fact"><span class="k">Velocity 1h / 24h</span><span class="v">10 / 10</span></div>
+        <div class="fact"><span class="k">Actions</span><span class="v">Approve · Block · Escalate</span></div>
+      </div>
+      <div>
+        <h3 style="font-size:17px; margin-bottom:10px;">GenAI case summary (ai_query)</h3>
+        <div class="quote-box">"This account put through ten orders in the last hour, and ten in the last 24 hours. That's a burst."</div>
+        <p class="caption">I didn't type that. The job wrote it. Instead of dumping velocity counts on the analyst, they get a sentence they can act on in a few seconds — and the same engineered features the model used, so if they disagree with the score, they can see why it fired.</p>
+      </div>
+    </div>
+    <div class="footer"><span class="brand">Gift<span>Guard</span></span><span>7 / 20</span></div>
+  </section>
+
+  <!-- 8. RAW DATA + LAKEFLOW DIVIDER -->
+  <section class="slide section-divider">
+    <div class="step">Demo — stop 2 of 6</div>
+    <h1>None of this is a mock-up.</h1>
+    <p>5,000 synthetic customers, ~100,000 synthetic orders, with the fraud patterns you'd actually see. No real customer records.</p>
+  </section>
+
+  <!-- 9. LAKEFLOW PIPELINE -->
+  <section class="slide">
+    <div class="kicker">Lakeflow pipeline — fe-bar-fraud-pipeline</div>
+    <h1>Bronze is streaming. Silver and gold are batch, on purpose.</h1>
+    <div class="body">
+      <div class="flow">
+        <div class="node">Volume<span class="small">raw JSON</span></div>
+        <div class="arrow">→</div>
+        <div class="node accent">Bronze<span class="small">streaming tables, Auto Loader</span></div>
+        <div class="arrow">→</div>
+        <div class="node">Silver<span class="small">materialized views, cleaned + joined</span></div>
+        <div class="arrow">→</div>
+        <div class="node">Gold<span class="small">materialized views, features + KPIs</span></div>
+      </div>
+      <ul class="bullets" style="margin-top:10px;">
+        <li>Data-quality checks sit on the way through — a broken record dies before it gets near the model.</li>
+        <li>Velocity features are windowed counts — simpler and correct as batch. Streaming them adds state and cost without changing the result here.</li>
+        <li>Update <code>e0090429…</code> on pipeline <code>7290e83d…</code>: COMPLETED. One order can be followed from a file to a table.</li>
+      </ul>
+    </div>
+    <div class="footer"><span class="brand">Gift<span>Guard</span></span><span>9 / 20</span></div>
+  </section>
+
+  <!-- 10. UNITY CATALOG -->
+  <section class="slide">
+    <div class="kicker">Unity Catalog</div>
+    <h1>Same catalog, same names — no side system.</h1>
+    <div class="body">
+      <ul class="bullets">
+        <li>Email, IP, and card last-four are <b>masked</b> unless you're in fraud ops. Everyone else sees a masked value.</li>
+        <li>The app and Genie go through the <b>same permissions</b>. There is no side door.</li>
+        <li><b>Lineage</b> is the audit answer — walk from a gold score back to the raw file in five minutes, not three weeks.</li>
+        <li>15 live lineage edges captured from <code>system.access.table_lineage</code>, bronze through gold.</li>
+      </ul>
+    </div>
+    <div class="footer"><span class="brand">Gift<span>Guard</span></span><span>10 / 20</span></div>
+  </section>
+
+  <!-- 11. MODEL -->
+  <section class="slide">
+    <div class="kicker">Model — fe-bar-fraud-classifier</div>
+    <h1>XGBoost, tracked in MLflow, registered in UC.</h1>
+    <div class="two-col">
+      <div class="panel">
+        <h3>What I watch</h3>
+        <div class="fact"><span class="k">AUC-PR</span><span class="v">0.583</span></div>
+        <div class="fact"><span class="k">ROC-AUC</span><span class="v">0.883</span></div>
+        <div class="fact"><span class="k">Fraud base rate</span><span class="v">~1.5%</span></div>
+        <div class="fact"><span class="k">Excluded feature</span><span class="v">chargebacks (leakage)</span></div>
+      </div>
+      <div>
+        <ul class="bullets compact">
+          <li>I'm watching precision-recall, not accuracy. Fraud is ~1.5% of orders — accuracy would look brilliant and tell you nothing.</li>
+          <li>Chargebacks show up weeks after the order. Training on them would look like a genius at training time and be useless at checkout.</li>
+          <li>Two bands on purpose: <b>block</b> is high confidence, <b>review</b> is the grey area. We're not declining a real customer on a 0.4 score.</li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer"><span class="brand">Gift<span>Guard</span></span><span>11 / 20</span></div>
+  </section>
+
+  <!-- 12. MODEL TRADE-OFF -->
+  <section class="slide">
+    <div class="kicker">The trade-off I'd sit on with you</div>
+    <h1 style="font-size:40px;">About 5% of legitimate orders get sent to review or block.</h1>
+    <div class="body">
+      <ul class="bullets">
+        <li>Most of that is <b>review</b>, not a hard decline — a person looks before anything is declined.</li>
+        <li>If that's too high, we move the threshold. You trade a bit of fraud catch for fewer good customers in the queue.</li>
+        <li>That's a business decision. I can show you the table. It is <b>not a rebuild</b>.</li>
+      </ul>
+    </div>
+    <div class="footer"><span class="brand">Gift<span>Guard</span></span><span>12 / 20</span></div>
+  </section>
+
+  <!-- 13. LAKEBASE -->
+  <section class="slide">
+    <div class="kicker">Lakebase — fe-bar-giftguard-serving</div>
+    <h1>At checkout you can't scan a gold table.</h1>
+    <div class="body">
+      <div class="big-number">209<span class="unit">ms</span></div>
+      <p class="caption">Point lookup for order ord&#8209;00098728 — Sydney laptop to a US region, over the internet. In-region, next to checkout, it's tighter.</p>
+      <ul class="bullets compact" style="margin-top:6px;">
+        <li>Flagged scores are loaded into Lakebase — that's Postgres — so checkout needs one row, by order ID, fast.</li>
+        <li>In this workspace I loaded the table from gold with a job; I couldn't create a synced catalog here. In your account, a synced table keeps it current without that step.</li>
+        <li>Delta is for analytics and training. Lakebase is for the app and checkout. Same data, different engine, on purpose.</li>
+      </ul>
+    </div>
+    <div class="footer"><span class="brand">Gift<span>Guard</span></span><span>13 / 20</span></div>
+  </section>
+
+  <!-- 14. GENIE -->
+  <section class="slide">
+    <div class="kicker">Genie — fe-bar GiftGuard Fraud Analytics</div>
+    <h1>Your fraud manager isn't going to write SQL.</h1>
+    <div class="two-col">
+      <div class="panel">
+        <h3>"How much face value did we block versus review?"</h3>
+        <div class="fact"><span class="k">Block</span><span class="v">$348,380</span></div>
+        <div class="fact"><span class="k">Review</span><span class="v">$100,485</span></div>
+      </div>
+      <div class="panel">
+        <h3>"Top 10 highest-value blocked orders."</h3>
+        <div class="fact"><span class="k">Rows returned</span><span class="v">10</span></div>
+        <div class="fact"><span class="k">Mostly</span><span class="v">Bunnings, $500 face value</span></div>
+      </div>
+    </div>
+    <p class="caption" style="margin-top:18px;">Same numbers I just told you off the gold table — because it's reading the governed tables. It can't see anything the person asking isn't allowed to see. And the same Genie panel sits inside the console, so the analyst never leaves the app.</p>
+    <div class="footer"><span class="brand">Gift<span>Guard</span></span><span>14 / 20</span></div>
+  </section>
+
+  <!-- 15. THE LOOP -->
+  <section class="slide">
+    <div class="kicker">Say the loop once, slowly</div>
+    <h1>This is the whole point of the build.</h1>
+    <div class="body">
+      <div class="flow">
+        <div class="node">Order placed</div>
+        <div class="arrow">→</div>
+        <div class="node">Volume → bronze → silver → gold</div>
+        <div class="arrow">→</div>
+        <div class="node accent">Model scores it</div>
+      </div>
+      <div class="flow" style="margin-top:4px;">
+        <div class="node allow" style="border-color:var(--allow);">Boring → allowed</div>
+        <div class="node review" style="border-color:var(--review);">Grey → queue + reason</div>
+        <div class="node block" style="border-color:var(--block);">Ugly → blocked, score in Lakebase</div>
+      </div>
+      <div class="flow-wrap-note">Weekly picture? Ask Genie. One journey — not six disconnected demos.</div>
+    </div>
+    <div class="footer"><span class="brand">Gift<span>Guard</span></span><span>15 / 20</span></div>
+  </section>
+
+  <!-- 16. BUSINESS CASE CLOSE -->
+  <section class="slide">
+    <div class="kicker">Bringing it back to what you care about</div>
+    <h1>$226,100 of $237,185 in labeled fraud, stopped at block alone.</h1>
+    <div class="body">
+      <ul class="bullets">
+        <li>Review catches more on top of that — analysts are looking at the grey area, not at everything.</li>
+        <li>The thing to tune first is false flags: ~5% of good orders in review or block, mostly review.</li>
+        <li>If this scaled to a $500M GMV platform losing ~$4M/year, the <b>modeled</b> saving is ~$2.4M/year at a conservative catch rate — that is a model, not this table. The numbers I'll stand on in this room are the ones from the run.</li>
+      </ul>
+    </div>
+    <div class="footer"><span class="brand">Gift<span>Guard</span></span><span>16 / 20</span></div>
+  </section>
+
+  <!-- 17. WHAT'S NEXT / NOT -->
+  <section class="slide">
+    <div class="kicker">What I'd do next — and two things this isn't</div>
+    <h1 style="font-size:38px;">A 2–4 week pilot on a slice of your real order history.</h1>
+    <div class="body">
+      <ul class="bullets">
+        <li>Shadow mode: it scores, it does not decline anyone. We sit with your fraud lead, pick a threshold, see how the queue looks.</li>
+        <li><b>Not real-time today</b> — scoring is batch, then loaded into Lakebase. For checkout you'd put this model behind Model Serving; it's already in Unity Catalog, so that's a deploy, not a rebuild.</li>
+        <li><b>No Model Serving endpoint stood up</b> in this workspace. Not pretending there is one.</li>
+      </ul>
+    </div>
+    <div class="footer"><span class="brand">Gift<span>Guard</span></span><span>17 / 20</span></div>
+  </section>
+
+  <!-- 18. DISCUSSION -->
+  <section class="slide section-divider">
+    <div class="step">Over to you</div>
+    <h1>Cost, architecture, or your order feed?</h1>
+    <p>Happy to go into any of it. [Stop. Let them talk.]</p>
+  </section>
+
+  <!-- 19. BACKUP: SHORT VERSIONS -->
+  <section class="slide backup">
+    <div class="kicker">Backup — short versions</div>
+    <h1 style="font-size:32px;">If they want 60 seconds, not 20 minutes.</h1>
+    <div class="two-col">
+      <div class="panel">
+        <h3>Business</h3>
+        <p style="font-size:15px; line-height:1.55;">Gift cards are cash, so fraud is expensive. We score every order, block the obvious fraud, send the grey area to a review queue, and give the analyst a one-line reason for each case. On ~100,000 orders we blocked $348,000, and $226,000 of that was confirmed fraud. 80% of fraud orders got caught somewhere. The thing to tune is how many good customers end up in review — that's a dial, not a rebuild.</p>
+      </div>
+      <div class="panel">
+        <h3>Technical</h3>
+        <p style="font-size:15px; line-height:1.55;">Raw JSON lands in a UC volume. Lakeflow uses Auto Loader into bronze streaming tables, then silver/gold materialized views with expectations. Gold features feed an XGBoost classifier tracked in MLflow, registered in UC. A job batch-scores gold, writes decisions and ai_query summaries back. PII is masked in UC. Flagged scores load into Lakebase for point lookups. Genie sits on gold. The app is a Databricks App reading the warehouse and Lakebase. Everything is an asset bundle — it redeploys the same way every time.</p>
+      </div>
+    </div>
+    <div class="footer"><span class="brand">Gift<span>Guard</span></span><span>19 / 20</span></div>
+  </section>
+
+  <!-- 20. BACKUP: OBJECTIONS -->
+  <section class="slide backup">
+    <div class="kicker">Backup — if they ask</div>
+    <h1 style="font-size:30px;">Objection handling</h1>
+    <div class="qa-grid">
+      <div class="qa"><div class="q">Cost?</div><div class="a">All serverless, pay for what runs. Pipeline and scoring are batch, minutes per run. Lakebase scales down when quiet. Size it off your volumes in the pilot.</div></div>
+      <div class="qa"><div class="q">How many good customers do you annoy?</div><div class="a">~5% of legit orders went to review or block, mostly review, so a person looks first. Move the threshold and we trade catch rate for fewer flags — we can show exactly what each setting costs.</div></div>
+      <div class="qa"><div class="q">How sure are you about $2.4M?</div><div class="a">Not quoting it as a result — it's a model on a $4M fraud book. What I stand behind today: $226,000 of $237,000 in fraud stopped at block, this run. The pilot turns the model into your number.</div></div>
+      <div class="qa"><div class="q">How long until it's live?</div><div class="a">Pattern already exists. Work is plugging in your order feed and agreeing the threshold. A few weeks for a pilot on history, then a shadow period before it touches a real customer.</div></div>
+      <div class="qa"><div class="q">Is this real-time?</div><div class="a">Not yet. Today scoring is batch, loaded into Lakebase for fast lookup. Real-time at checkout means a Model Serving endpoint behind the already-registered UC model — a deployment step, not a rebuild.</div></div>
+      <div class="qa"><div class="q">Why Lakebase, not just Delta?</div><div class="a">Delta is for scans and aggregates. Checkout needs one row by order ID in milliseconds — Lakebase gives you Postgres for that. In your account, a synced table keeps it current automatically.</div></div>
+      <div class="qa"><div class="q">Data quality?</div><div class="a">Expectations in the pipeline drop bad records before scoring. Chargebacks are deliberately left out of model features — they show up weeks late and would leak the label.</div></div>
+      <div class="qa"><div class="q">Security / PII?</div><div class="a">Column masks in UC on email, IP, and card last-four. Only fraud-ops sees real values. Genie and the app share the same permissions — no side door.</div></div>
+      <div class="qa"><div class="q">Drift?</div><div class="a">Labels and scores land back in gold, so retraining is a scheduled job. Watch precision-recall weekly; only promote a new UC model version if it beats the current one.</div></div>
+      <div class="qa"><div class="q">Why not one big streaming pipeline?</div><div class="a">Bronze is streaming with Auto Loader. Silver/gold are materialized views because windowed features are simpler and correct as batch — streaming would add state and cost with no change in result.</div></div>
+    </div>
+    <div class="footer"><span class="brand">Gift<span>Guard</span></span><span>20 / 20</span></div>
+  </section>
+
+</div>
+
+<script>
+  const slides = Array.from(document.querySelectorAll('.slide'));
+  let idx = 0;
+
+  function render() {
+    slides.forEach((s, i) => s.classList.toggle('active', i === idx));
+    document.getElementById('slideCounter').textContent = (idx + 1) + ' / ' + slides.length;
+    document.getElementById('progressBar').style.width = (((idx + 1) / slides.length) * 100) + '%';
+  }
+
+  function nextSlide() { if (idx < slides.length - 1) { idx++; render(); } }
+  function prevSlide() { if (idx > 0) { idx--; render(); } }
+
+  document.addEventListener('keydown', (e) => {
+    if (['ArrowRight', 'ArrowDown', ' ', 'PageDown'].includes(e.key)) { e.preventDefault(); nextSlide(); }
+    else if (['ArrowLeft', 'ArrowUp', 'PageUp'].includes(e.key)) { e.preventDefault(); prevSlide(); }
+    else if (e.key === 'Home') { e.preventDefault(); idx = 0; render(); }
+    else if (e.key === 'End') { e.preventDefault(); idx = slides.length - 1; render(); }
+    else if (e.key.toLowerCase() === 'p') { window.print(); }
+  });
+
+  render();
+</script>
+
+</body>
+</html>

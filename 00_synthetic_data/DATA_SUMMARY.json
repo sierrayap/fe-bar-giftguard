@@ -1,0 +1,23 @@
+{
+  "customers": 5000,
+  "brands": 50,
+  "orders": 100298,
+  "redemptions": 78369,
+  "chargebacks": 1014,
+  "fraud_labels": 100298,
+  "fraud_orders": 1532,
+  "fraud_base_rate": 0.0153,
+  "fraud_face_value_aud": 237185,
+  "legit_face_value": 3210525,
+  "fraud_tag_counts": {
+    "face_value_skew": 914,
+    "new_account_burst": 865,
+    "geo_mismatch": 599,
+    "friendly_fraud_noise": 398,
+    "unlabeled_fraud": 366,
+    "instant_brand": 366,
+    "velocity": 224,
+    "device_fanout": 45,
+    "ato_ring": 45
+  }
+}

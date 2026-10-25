@@ -1,0 +1,6 @@
+resources:
+  schemas:
+    fe_bar_raw:
+      name: fe-bar-raw
+      catalog_name: ${var.catalog}
+      comment: GiftGuard raw landing zone — UC Volume of synthetic gift-card events.

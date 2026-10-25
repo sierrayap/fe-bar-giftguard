@@ -1,0 +1,6 @@
+resources:
+  schemas:
+    fe_bar_silver:
+      name: fe-bar-silver
+      catalog_name: ${var.catalog}
+      comment: GiftGuard silver — typed, deduped, quality-checked entities.

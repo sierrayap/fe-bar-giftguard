@@ -1,0 +1,45 @@
+{
+  "version": 2,
+  "config": {
+    "sample_questions": [
+      {"id": "10000000000000000000000000000001", "question": ["What was the fraud rate by brand last week?"]},
+      {"id": "10000000000000000000000000000002", "question": ["Show the top 10 highest-value blocked orders."]},
+      {"id": "10000000000000000000000000000003", "question": ["How much face value did we block versus review?"]},
+      {"id": "10000000000000000000000000000004", "question": ["What share of labeled fraud is on accounts younger than 48 hours?"]},
+      {"id": "10000000000000000000000000000005", "question": ["Which instant-redeem brands have the highest fraud face value?"]}
+    ]
+  },
+  "data_sources": {
+    "tables": [
+      {"identifier": "sierra_yap_demo_dump_catalog.fe-bar-gold.fe-bar-card-risk-scores"},
+      {"identifier": "sierra_yap_demo_dump_catalog.fe-bar-gold.fe-bar-fraud-kpis"},
+      {"identifier": "sierra_yap_demo_dump_catalog.fe-bar-gold.fe-bar-order-features"}
+    ]
+  },
+  "instructions": {
+    "example_question_sqls": [
+      {
+        "id": "20000000000000000000000000000001",
+        "question": ["How much face value did we block versus review?"],
+        "sql": ["SELECT decision, COUNT(*) AS orders, SUM(face_value) AS usd FROM `sierra_yap_demo_dump_catalog`.`fe-bar-gold`.`fe-bar-card-risk-scores` GROUP BY decision ORDER BY usd DESC"]
+      },
+      {
+        "id": "20000000000000000000000000000002",
+        "question": ["Show the top 10 highest-value blocked orders."],
+        "sql": ["SELECT order_id, brand_name, face_value, fraud_score, decision FROM `sierra_yap_demo_dump_catalog`.`fe-bar-gold`.`fe-bar-card-risk-scores` WHERE decision = 'block' ORDER BY face_value DESC LIMIT 10"]
+      }
+    ],
+    "text_instructions": [
+      {
+        "id": "30000000000000000000000000000001",
+        "content": [
+          "is_fraud on fe-bar-order-features is the label, not the model decision.",
+          "decision on fe-bar-card-risk-scores is allow / review / block.",
+          "dollars_blocked on fe-bar-fraud-kpis is true-positive blocked face value.",
+          "Join scores to features on order_id.",
+          "Hyphenated schema and table names must be quoted with backticks."
+        ]
+      }
+    ]
+  }
+}

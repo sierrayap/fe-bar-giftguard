@@ -1,0 +1,6 @@
+resources:
+  schemas:
+    fe_bar_bronze:
+      name: fe-bar-bronze
+      catalog_name: ${var.catalog}
+      comment: GiftGuard bronze — Auto Loader append-only ingest of raw files.

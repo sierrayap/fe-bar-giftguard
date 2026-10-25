@@ -1,0 +1,8 @@
+resources:
+  volumes:
+    fe_bar_giftcard_events:
+      catalog_name: ${var.catalog}
+      schema_name: ${var.raw_schema}
+      name: ${var.volume_name}
+      volume_type: MANAGED
+      comment: Raw JSON gift-card events (customers, brands, orders, redemptions, chargebacks, labels).

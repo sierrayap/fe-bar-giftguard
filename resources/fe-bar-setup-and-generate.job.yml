@@ -1,0 +1,50 @@
+resources:
+  jobs:
+    fe_bar_setup_and_generate:
+      name: fe-bar-setup-and-generate
+      description: Create GiftGuard UC schemas/volume/mask functions and land synthetic raw events.
+      max_concurrent_runs: 1
+      parameters:
+        - name: catalog
+          default: ${var.catalog}
+        - name: raw_schema
+          default: ${var.raw_schema}
+        - name: bronze_schema
+          default: ${var.bronze_schema}
+        - name: silver_schema
+          default: ${var.silver_schema}
+        - name: gold_schema
+          default: ${var.gold_schema}
+        - name: ml_schema
+          default: ${var.ml_schema}
+        - name: volume_name
+          default: ${var.volume_name}
+        - name: customer_count
+          default: ${var.customer_count}
+        - name: order_count
+          default: ${var.order_count}
+      environments:
+        - environment_key: fe-bar-setup-env
+          spec:
+            client: "4"
+            dependencies:
+              - faker>=24.0.0
+      tasks:
+        - task_key: setup_and_generate
+          environment_key: fe-bar-setup-env
+          notebook_task:
+            notebook_path: ../src/notebooks/00_setup_and_generate.py
+            source: WORKSPACE
+            base_parameters:
+              catalog: "{{job.parameters.catalog}}"
+              raw_schema: "{{job.parameters.raw_schema}}"
+              bronze_schema: "{{job.parameters.bronze_schema}}"
+              silver_schema: "{{job.parameters.silver_schema}}"
+              gold_schema: "{{job.parameters.gold_schema}}"
+              ml_schema: "{{job.parameters.ml_schema}}"
+              volume_name: "{{job.parameters.volume_name}}"
+              customer_count: "{{job.parameters.customer_count}}"
+              order_count: "{{job.parameters.order_count}}"
+      tags:
+        project: fe-bar-giftguard
+        layer: raw

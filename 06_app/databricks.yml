@@ -1,0 +1,53 @@
+bundle:
+  name: fe-bar-giftguard-fraud-ops
+
+variables:
+  sql_warehouse_id:
+    description: SQL warehouse ID used for gold-table analytics and SQL fallback
+  postgres_branch:
+    description: Full Lakebase branch resource name (databricks postgres list-branches)
+  postgres_database:
+    description: Full Lakebase database resource name (databricks postgres list-databases)
+  genie_space_id:
+    description: GiftGuard Genie Space ID. Injected as DATABRICKS_GENIE_SPACE_ID. Do not hardcode in source.
+  genie_space_name:
+    description: GiftGuard Genie Space display name
+    default: fe-bar GiftGuard Fraud Analytics
+
+resources:
+  apps:
+    app:
+      name: fe-bar-giftguard-fraud-ops
+      description: GiftGuard fraud-ops console — KPI header, flagged-order queue, case summaries, review actions, and Genie
+      source_code_path: ./
+      lifecycle:
+        started: true
+      user_api_scopes:
+        - sql
+        - dashboards.genie
+      resources:
+        - name: fe-bar-sql-warehouse
+          sql_warehouse:
+            id: ${var.sql_warehouse_id}
+            permission: CAN_USE
+        - name: fe-bar-postgres
+          postgres:
+            branch: ${var.postgres_branch}
+            database: ${var.postgres_database}
+            permission: CAN_CONNECT_AND_CREATE
+        - name: fe-bar-genie-space
+          genie_space:
+            name: ${var.genie_space_name}
+            space_id: ${var.genie_space_id}
+            permission: CAN_RUN
+
+targets:
+  default:
+    default: true
+    workspace:
+      host: https://fevm-sierra-yap-demo-dump.cloud.databricks.com
+    variables:
+      sql_warehouse_id: 67a31e849c302489
+      postgres_branch: projects/fe-bar-giftguard-serving/branches/production
+      postgres_database: projects/fe-bar-giftguard-serving/branches/production/databases/databricks-postgres
+      genie_space_id: 01f1cb6b49081479ab1dcbb15703bb42

@@ -1,0 +1,62 @@
+bundle:
+  name: fe-bar-giftguard
+
+include:
+  # Schemas and the raw volume already exist in this workspace; deploying
+  # them as bundle resources fails with SCHEMA_ALREADY_EXISTS.
+  - resources/*.job.yml
+  - resources/*.pipeline.yml
+
+sync:
+  exclude:
+    - .venv
+    - .venv/**
+    - 06_app
+    - 06_app/**
+    - "**/__pycache__/**"
+    - "**/*.pyc"
+
+variables:
+  catalog:
+    description: Unity Catalog name (only identifier that is not fe-bar-prefixed)
+    default: sierra_yap_demo_dump_catalog
+  raw_schema:
+    description: Landing schema for the raw events volume
+    default: fe-bar-raw
+  bronze_schema:
+    description: Bronze medallion schema
+    default: fe-bar-bronze
+  silver_schema:
+    description: Silver medallion schema
+    default: fe-bar-silver
+  gold_schema:
+    description: Gold medallion schema
+    default: fe-bar-gold
+  ml_schema:
+    description: ML registry / function schema
+    default: fe-bar-ml
+  volume_name:
+    description: UC Volume that holds raw gift-card event files
+    default: fe-bar-giftcard-events
+  model_name:
+    description: UC registered model name
+    default: fe-bar-fraud-classifier
+  customer_count:
+    description: Demo customer count
+    default: "5000"
+  order_count:
+    description: Demo order count
+    default: "100000"
+
+targets:
+  demo:
+    default: true
+    # Production mode avoids the [dev user] resource-name prefix so every
+    # job/pipeline stays literally fe-bar-* as required.
+    mode: production
+    workspace:
+      host: https://fevm-sierra-yap-demo-dump.cloud.databricks.com
+      profile: fevm-sierra-yap-demo-dump
+      root_path: /Workspace/Users/${workspace.current_user.userName}/.bundle/${bundle.name}/${bundle.target}
+    variables:
+      catalog: sierra_yap_demo_dump_catalog

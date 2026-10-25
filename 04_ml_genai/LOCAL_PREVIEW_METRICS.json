@@ -1,0 +1,113 @@
+{
+  "backend": "sklearn.HistGradientBoostingClassifier (local preview)",
+  "workspace_model": "sierra_yap_demo_dump_catalog.`fe-bar-ml`.`fe-bar-fraud-classifier`",
+  "auc_pr": 0.5488,
+  "roc_auc": 0.8887,
+  "n_train": 75223,
+  "n_test": 25075,
+  "fraud_base_rate": 0.0153,
+  "threshold_table": [
+    {
+      "threshold": 0.2,
+      "precision": 0.5962,
+      "recall": 0.7363,
+      "fp_rate": 0.0077,
+      "tp": 282,
+      "fp": 191,
+      "tn": 24501,
+      "fn": 101,
+      "test_fraud_face_value_caught": 57205.0,
+      "modeled_annual_save_usd": 2945170.0
+    },
+    {
+      "threshold": 0.25,
+      "precision": 0.6026,
+      "recall": 0.7206,
+      "fp_rate": 0.0074,
+      "tp": 276,
+      "fp": 182,
+      "tn": 24510,
+      "fn": 107,
+      "test_fraud_face_value_caught": 56245.0,
+      "modeled_annual_save_usd": 2882507.0
+    },
+    {
+      "threshold": 0.3,
+      "precision": 0.6135,
+      "recall": 0.7128,
+      "fp_rate": 0.007,
+      "tp": 273,
+      "fp": 172,
+      "tn": 24520,
+      "fn": 110,
+      "test_fraud_face_value_caught": 55945.0,
+      "modeled_annual_save_usd": 2851175.0
+    },
+    {
+      "threshold": 0.35,
+      "precision": 0.6379,
+      "recall": 0.6762,
+      "fp_rate": 0.006,
+      "tp": 259,
+      "fp": 147,
+      "tn": 24545,
+      "fn": 124,
+      "test_fraud_face_value_caught": 54045.0,
+      "modeled_annual_save_usd": 2704961.0
+    },
+    {
+      "threshold": 0.4,
+      "precision": 0.6466,
+      "recall": 0.6449,
+      "fp_rate": 0.0055,
+      "tp": 247,
+      "fp": 135,
+      "tn": 24557,
+      "fn": 136,
+      "test_fraud_face_value_caught": 52910.0,
+      "modeled_annual_save_usd": 2579634.0
+    },
+    {
+      "threshold": 0.5,
+      "precision": 0.6895,
+      "recall": 0.5509,
+      "fp_rate": 0.0038,
+      "tp": 211,
+      "fp": 95,
+      "tn": 24597,
+      "fn": 172,
+      "test_fraud_face_value_caught": 46920.0,
+      "modeled_annual_save_usd": 2203655.0
+    },
+    {
+      "threshold": 0.6,
+      "precision": 0.7229,
+      "recall": 0.436,
+      "fp_rate": 0.0026,
+      "tp": 167,
+      "fp": 64,
+      "tn": 24628,
+      "fn": 216,
+      "test_fraud_face_value_caught": 39200.0,
+      "modeled_annual_save_usd": 1744125.0
+    }
+  ],
+  "chosen": {
+    "threshold": 0.35,
+    "precision": 0.6379,
+    "recall": 0.6762,
+    "fp_rate": 0.006,
+    "tp": 259,
+    "fp": 147,
+    "tn": 24545,
+    "fn": 124,
+    "test_fraud_face_value_caught": 54045.0,
+    "modeled_annual_save_usd": 2704961.0
+  },
+  "confusion_matrix_at_0.35": {
+    "tn": 24545,
+    "fp": 147,
+    "fn": 124,
+    "tp": 259
+  }
+}

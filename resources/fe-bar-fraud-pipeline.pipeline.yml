@@ -1,0 +1,25 @@
+resources:
+  pipelines:
+    fe_bar_fraud_pipeline:
+      name: fe-bar-fraud-pipeline
+      catalog: ${var.catalog}
+      schema: ${var.bronze_schema}
+      serverless: true
+      continuous: false
+      photon: true
+      channel: current
+      development: false
+      root_path: ../src/pipelines/fe_bar_giftguard
+      libraries:
+        - glob:
+            include: ../src/pipelines/fe_bar_giftguard/transformations/**
+      configuration:
+        giftguard_catalog: ${var.catalog}
+        raw_schema: ${var.raw_schema}
+        bronze_schema: ${var.bronze_schema}
+        silver_schema: ${var.silver_schema}
+        gold_schema: ${var.gold_schema}
+        volume_name: ${var.volume_name}
+      tags:
+        project: fe-bar-giftguard
+        layer: lakeflow

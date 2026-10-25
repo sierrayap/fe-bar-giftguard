@@ -1,0 +1,6 @@
+resources:
+  schemas:
+    fe_bar_ml:
+      name: fe-bar-ml
+      catalog_name: ${var.catalog}
+      comment: GiftGuard ML — registered model, mask functions, experiment artifacts.

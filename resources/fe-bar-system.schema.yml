@@ -1,0 +1,6 @@
+resources:
+  schemas:
+    fe_bar_system:
+      name: fe-bar-system
+      catalog_name: ${var.catalog}
+      comment: GiftGuard operational metadata for pipeline storage and serving jobs.
